@@ -39,6 +39,11 @@ import
 }
 from 'react-native'
 
+import FBSDK  from 'react-native-fbsdk'
+const { LoginButton, AccessToken } = FBSDK
+
+console.log(FBSDK);
+
 /**
  * The platform neutral button
  */
@@ -96,6 +101,7 @@ var I18n = require('react-native-i18n')
 import Translations from '../lib/Translations'
 I18n.translations = Translations
 
+
 /**
  * ## App class
  */
@@ -121,11 +127,33 @@ class Main extends Component {
           <Button style={styles.button} onPress={this.handlePress.bind(this)}>
             {I18n.t('Main.navigate')}
           </Button>
+
+          <View>
+            <LoginButton
+              publishPermissions={["publish_actions"]}
+              onLoginFinished={
+                (error, result) => {
+                  if (error) {
+                    alert("login has error: " + result.error);
+                  } else if (result.isCancelled) {
+                    alert("login is cancelled.");
+                  } else {
+                    AccessToken.getCurrentAccessToken().then(
+                      (data) => {
+                        alert(data.accessToken.toString())
+                      }
+                    )
+                  }
+                }
+              }
+              onLogoutFinished={() => alert("logout.")}/>
+          </View>       
         </View>
       </View>
     )
   }
 }
+
 
 /**
  * Connect the properties
