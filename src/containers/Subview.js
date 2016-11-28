@@ -26,14 +26,89 @@ import NavigationBar from 'react-native-navbar'
 /**
  * The necessary components from React
  */
-import React from 'react'
+import React, { Component } from 'react'
 import
 {
   StyleSheet,
   View,
-  Text
+  Text,
+  TouchableHighlight
 }
 from 'react-native'
+
+const FBSDK = require('react-native-fbsdk');
+
+
+const {
+  LoginButton,
+  ShareDialog,
+} = FBSDK;
+
+class HelloFacebook extends Component {
+  constructor(props) {
+    super(props);
+    const shareLinkContent = {
+      contentType: 'link',
+      contentUrl: 'https://www.facebook.com/',
+    };
+
+    this.state = {
+      shareLinkContent: shareLinkContent,
+    };
+  }
+
+  shareLinkWithShareDialog() {
+    var tmp = this;
+    ShareDialog.canShow(this.state.shareLinkContent).then(
+      function(canShow) {
+        if (canShow) {
+          return ShareDialog.show(tmp.state.shareLinkContent);
+        }
+      }
+    ).then(
+      function(result) {
+        if (result.isCancelled) {
+          alert('Share cancelled');
+        } else {
+          alert('Share success with postId: '
+            + result.postId);
+        }
+      },
+      function(error) {
+        alert('Share fail with error: ' + error);
+      }
+    );
+  }
+
+  render() {
+    return (
+      <View style={fbStyles.container}>
+        <LoginButton />
+        <TouchableHighlight style={fbStyles.share}
+          onPress={this.shareLinkWithShareDialog.bind(this)}>
+          <Text style={fbStyles.shareText}>Share link with ShareDialog</Text>
+        </TouchableHighlight>
+      </View>
+    );
+  }
+}
+
+const fbStyles = StyleSheet.create({
+  container: {
+    flex: 1,
+    justifyContent: 'center',
+    alignItems: 'center',
+    backgroundColor: '#F5FCFF',
+  },
+  shareText: {
+    fontSize: 20,
+    margin: 10,
+  },
+});
+
+
+
+
 
 /**
  * Use device options so we can reference the Version
@@ -109,10 +184,13 @@ let Subview = React.createClass({
           <Text style={styles.summary}>{I18n.t('Subview.subview')} {I18n.t('App.version')}: {this.props.deviceVersion}
           </Text>
         </View>
+
+        <HelloFacebook />
       </View>
     )
   }
 })
+
 
 /**
  * Connect the properties
